@@ -1,12 +1,35 @@
 using System.Diagnostics;
 using System.IO.Pipes;
-
+using System.Runtime.InteropServices;
+using System.IO; // Add this using directive
 
 public class Worker : BackgroundService
 {
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    private const int SW_HIDE = 0;
+    private const int SW_SHOW = 5;
+
+    IntPtr consoleWindow = Process.GetCurrentProcess().MainWindowHandle;
+
     private string username;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (File.Exists("username.txt")) // Check if the file exists
+        {
+            username = File.ReadAllText("username.txt");
+        }
+        else
+        {
+            Console.WriteLine("Enter an admin username:");
+            username = Console.ReadLine();
+            File.WriteAllText("username.txt", username);
+            //hide window
+            ShowWindow(consoleWindow, SW_HIDE);
+        }
+
         while (!stoppingToken.IsCancellationRequested)
         {
             using (NamedPipeServerStream pipeServer = new NamedPipeServerStream("ProcElevPipe", PipeDirection.InOut))
@@ -14,19 +37,9 @@ public class Worker : BackgroundService
                 pipeServer.WaitForConnection();
                 using (StreamReader reader = new StreamReader(pipeServer))
                 using (StreamWriter writer = new StreamWriter(pipeServer))
-                
                 {
                     string request = reader.ReadLine();
-                    try
-                    {
-                        username = File.ReadAllText("username.txt");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Please create username.txt of the user you will be running as. Then restart the program.");
-                    }
 
-                    
                     if (!string.IsNullOrWhiteSpace(request))
                     {
                         try
@@ -34,7 +47,7 @@ public class Worker : BackgroundService
                             ProcessStartInfo psi = new ProcessStartInfo
                             {
                                 FileName = "runas",
-                                Arguments = $"/user:{username} /savecred \"{request}\"",
+                                Arguments = $"/user:{username} /savecred \"cmd /C start {request}\"",
                                 Verb = "runas"
                             };
 
@@ -42,12 +55,14 @@ public class Worker : BackgroundService
                         }
                         catch (Exception ex)
                         {
-                            writer.WriteLine("Error: " + ex.Message);
+                            // Handle the exception
+                            // writer.WriteLine("Error: " + ex.Message);
                         }
                     }
                     else
                     {
-                        writer.WriteLine("Invalid request.");
+                        // Handle the case where the request is empty
+                        // writer.WriteLine("Invalid request.");
                     }
                 }
             }
