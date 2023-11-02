@@ -1,3 +1,8 @@
+[![GitHub stars](https://img.shields.io/github/stars/MrBreakNFix/process-elevation?style=social)](https://github.com/MrBreakNFix/process-elevation/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/MrBreakNFix/process-elevation?style=social)](https://github.com/MrBreakNFix/process-elevation/network)
+[![GitHub issues](https://img.shields.io/github/issues/MrBreakNFix/process-elevation)](https://github.com/MrBreakNFix/process-elevation/issues)
+
+
 # Process Elevation
 
 **Process Elevation** is a utility that allows you to run commands as a predefined user by communicating via a service worker using a NamedPipeServerStream. This repository is designed to work in conjunction with the Process Elevation Helper repository, enabling secure and controlled execution of commands with elevated privileges.
