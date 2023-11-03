@@ -1,13 +1,12 @@
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
-using System.IO; // Add this using directive
+using Microsoft.Win32;
 
 public class Worker : BackgroundService
 {
     [DllImport("user32.dll")]
     private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
     private const int SW_HIDE = 0;
     private const int SW_SHOW = 5;
 
@@ -17,16 +16,20 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (File.Exists("username.txt")) // Check if the file exists
+        ShowWindow(consoleWindow, SW_HIDE);
+        
+        AddToStartup();
+
+        if (File.Exists("C:\\Users\\Public\\Documents\\username.txt")) 
         {
-            username = File.ReadAllText("username.txt");
+            username = File.ReadAllText("C:\\Users\\Public\\Documents\\username.txt");
         }
         else
         {
+            ShowWindow(consoleWindow, SW_SHOW);
             Console.WriteLine("Enter an admin username:");
             username = Console.ReadLine();
-            File.WriteAllText("username.txt", username);
-            //hide window
+            File.WriteAllText("C:\\Users\\Public\\Documents\\username.txt", username);
             ShowWindow(consoleWindow, SW_HIDE);
         }
 
@@ -52,7 +55,7 @@ public class Worker : BackgroundService
                             };
 
                             Process.Start(psi);
-                        }
+                        }   
                         catch (Exception ex)
                         {
                             // Handle the exception
@@ -65,6 +68,26 @@ public class Worker : BackgroundService
                         // writer.WriteLine("Invalid request.");
                     }
                 }
+            }
+        }
+    }
+    static void AddToStartup()
+    {
+        string path = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+        string keyName = "ElevSW";
+
+        using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true))
+        {
+            if (key == null)
+            {
+                using (RegistryKey subKey = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run"))
+                {
+                    subKey.SetValue(keyName, path);
+                }
+            }
+            else
+            {
+                key.SetValue(keyName, path);
             }
         }
     }
