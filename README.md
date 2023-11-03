@@ -17,13 +17,15 @@
 
 ## Introduction
 
-This tool is used execute specific commands or operations with elevated privileges or another user account. Use https://github.com/MrBreakNFix/process-elevation-helper to communicate with elevsw.exe to launch programs from a different user account.
+This tool is used to execute specific commands or operations with elevated privileges or another user account. Use https://github.com/MrBreakNFix/process-elevation-helper to communicate with elevsw.exe to launch programs from a different user account.
 
 ## Features
 
-- **Predefined User:** You can specify a predefined user with the necessary privileges to run the commands
+- **Predefined User:** You can specify a predefined user with the necessary privileges to run the commands.
 
 - **UAC Prompt Bypass:** Because of using the functionality of runas savecreds, it bypasses UAC prompts.
+
+- **Automatic start up** The program adds itself to the startup registry so the program runs soon after you start the computer.
 
 ## Prerequisites
 
@@ -36,7 +38,8 @@ Before using Process Elevation, make sure you have the following prerequisites i
 ## Installation
 
 1. Clone this repository to your local machine or download the executable from the releases.
-2. Add the file to startup (not yet implemented)
+   
+3. Run the file for the first time, it will prompt for an admin username & password (only once) 
 
 ## Usage
 
